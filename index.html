@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Motor Titreşim İzleme Paneli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    header {
+      padding: 20px 40px;
+      border-bottom: 1px solid #1f2937;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .content {
+      padding: 20px 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid #1f2937;
+      padding: 8px 6px;
+      text-align: left;
+    }
+    th {
+      background: #020617;
+    }
+    .status-ok {
+      color: #22c55e;
+      font-weight: 600;
+    }
+    .status-bad {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid #4b5563;
+    }
+    .refresh-btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: none;
+      background: #3b82f6;
+      color: #fff;
+      cursor: pointer;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    #lastStatus {
+      margin-top: 10px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Akıllı Motor Titreşim İzleme Paneli</h1>
+  </header>
+
+  <div class="content">
+    <p>
+      Bu panel, ESP32 ile ThingSpeak'e gönderilen <strong>sanal titreşim verilerini</strong> izlemek için kullanılır.
+      Şu an gerçek sensör yerine breadboard üzerindeki iki buton ile “iyi” ve “kötü” titreşim senaryoları simüle edilmektedir.
+    </p>
+
+    <button class="refresh-btn" onclick="loadData()">Veriyi Yenile</button>
+    <p id="lastStatus"></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Zaman</th>
+          <th>Titreşim Değeri (field1)</th>
+          <th>Durum</th>
+        </tr>
+      </thead>
+      <tbody id="dataTableBody">
+        <!-- JS buraya satır ekleyecek -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const CHANNEL_ID = "3177497"; // <-- BURAYA Kanal ID'ni yaz
+    const LIMIT = 20;                      // Son 20 ölçüm
+    const THRESHOLD = 2000;               // ESP32 ile uyumlu eşik
+
+    async function loadData() {
+      const tbody = document.getElementById("dataTableBody");
+      const lastStatus = document.getElementById("lastStatus");
+      tbody.innerHTML = "<tr><td colspan='3'>Yukleniyor...</td></tr>";
+      lastStatus.innerHTML = "";
+
+      try {
+        const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=${LIMIT}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        tbody.innerHTML = "";
+
+        if (!data.feeds || data.feeds.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='3'>Veri bulunamadi.</td></tr>";
+          return;
+        }
+
+        data.feeds.forEach(feed => {
+          const value = parseFloat(feed.field1);
+          const time = new Date(feed.created_at);
+
+          let statusText = "-";
+          let statusClass = "";
+
+          if (!isNaN(value)) {
+            if (value > THRESHOLD) {
+              statusText = "Bakim Zamani";
+              statusClass = "status-bad";
+            } else {
+              statusText = "Motor OK";
+              statusClass = "status-ok";
+            }
+          }
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${time.toLocaleString()}</td>
+            <td>${isNaN(value) ? "-" : value.toFixed(2)}</td>
+            <td><span class="badge ${statusClass}">${statusText}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        // Son veriye göre genel durum
+        const last = data.feeds[data.feeds.length - 1];
+        const lastValue = parseFloat(last.field1);
+        if (!isNaN(lastValue)) {
+          if (lastValue > THRESHOLD) {
+            lastStatus.innerHTML = `Son durum: <span class="status-bad">Bakim Zamani</span>`;
+          } else {
+            lastStatus.innerHTML = `Son durum: <span class="status-ok">Motor OK</span>`;
+          }
+        }
+
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = "<tr><td colspan='3'>Veri cekilirken hata olustu.</td></tr>";
+        lastStatus.innerText = "Sunucuya erisilemiyor.";
+      }
+    }
+
+    // Sayfa açilinca otomatik veriyi yukle
+    loadData();
+  </script>
+</body>
+</html>
