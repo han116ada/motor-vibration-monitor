@@ -2,262 +2,635 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Motor Titreşim İzleme Paneli</title>
+  <title>Akıllı Motor Titreşim Paneli</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root {
+      --bg: #020617;
+      --bg-elevated: #020617;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #3b82f6;
+      --good: #22c55e;
+      --bad: #ef4444;
+      --radius-xl: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #020617;
-      color: #e5e7eb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #000 100%);
+      color: var(--text);
     }
+
     header {
       padding: 20px 40px;
-      border-bottom: 1px solid #1f2937;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
     }
+
+    .logo-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, #4ade80, #22c55e 40%, #16a34a 60%, #166534 100%);
+      box-shadow: 0 0 20px rgba(34,197,94,0.6);
+    }
+
     h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 22px;
+      letter-spacing: 0.02em;
     }
+
+    .subheader {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
     .content {
-      padding: 20px 40px;
-      max-width: 1000px;
+      padding: 20px 40px 40px;
+      max-width: 1200px;
       margin: 0 auto;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      font-size: 14px;
+
+    .top-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+      align-items: center;
     }
-    th, td {
-      border-bottom: 1px solid #1f2937;
-      padding: 8px 6px;
-      text-align: left;
-    }
-    th {
-      background: #020617;
-    }
-    .status-ok {
-      color: #22c55e;
-      font-weight: 600;
-    }
-    .status-bad {
-      color: #ef4444;
-      font-weight: 600;
-    }
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      border: 1px solid #4b5563;
-    }
+
     .refresh-btn {
       padding: 8px 16px;
       border-radius: 999px;
       border: none;
-      background: #3b82f6;
+      background: var(--accent);
       color: #fff;
       cursor: pointer;
       font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .refresh-btn:active {
+      transform: translateY(1px);
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .motor-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .motor-tab {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15,23,42,0.9);
+      color: var(--muted);
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .motor-tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(59,130,246,0.7);
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: rgba(15,23,42,0.92);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(15,23,42,1);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.75);
+      padding: 14px 16px;
+      min-height: 80px;
+    }
+
+    .card-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .card-value {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .dot-good {
+      background: var(--good);
+      box-shadow: 0 0 12px rgba(34,197,94,0.9);
+    }
+
+    .dot-bad {
+      background: var(--bad);
+      box-shadow: 0 0 12px rgba(239,68,68,0.9);
+    }
+
+    .dot-offline {
+      background: #6b7280;
+      box-shadow: 0 0 10px rgba(107,114,128,0.6);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
       margin-top: 10px;
+      font-size: 13px;
     }
-    #lastStatus {
-      margin-top: 10px;
-      font-size: 15px;
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 8px 6px;
+      text-align: left;
     }
-    .chart-container {
-      margin-top: 30px;
-      padding: 16px;
-      border-radius: 16px;
-      border: 1px solid #1f2937;
-      background: #020617;
+
+    th {
+      background: rgba(15,23,42,0.9);
+      font-weight: 500;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
     }
-    .chart-container h2 {
-      margin-top: 0;
-      font-size: 18px;
-      margin-bottom: 10px;
+
+    .status-ok {
+      color: var(--good);
+      font-weight: 600;
     }
+    .status-bad {
+      color: var(--bad);
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid #4b5563;
+    }
+
+    .section {
+      margin-top: 26px;
+      padding: 16px 18px 18px;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border);
+      background: rgba(15,23,42,0.92);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .section h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .section-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
     canvas {
       width: 100%;
-      max-height: 350px;
+      max-height: 360px;
+    }
+
+    .extra-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 6px;
+      font-size: 13px;
+    }
+
+    .extra-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .extra-value {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    @media (max-width: 720px) {
+      header, .content {
+        padding: 16px 16px 24px;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Akıllı Motor Titreşim İzleme Paneli</h1>
+    <div class="logo-title">
+      <div class="logo-dot"></div>
+      <div>
+        <h1>Akıllı Motor Titreşim Paneli</h1>
+        <div class="subheader">ESP32 + ADXL345 • 5 Motor İzleme (Motor 1 aktif)</div>
+      </div>
+    </div>
+    <span class="pill" id="lastUpdatedPill">Son güncelleme: -</span>
   </header>
 
   <div class="content">
-    <p>
-      Bu panel, ESP32 + ADXL345 ile ölçülen <strong>titreşim seviyesini</strong> göstermektedir.
-      Veriler Wi-Fi üzerinden ThingSpeak'e gönderilir, bu sayfa da ThingSpeak API'sinden
-      JSON formatında çekerek tablo ve grafikte gösterir.
-    </p>
+    <!-- Motor sekmeleri -->
+    <div class="motor-tabs">
+      <button class="motor-tab active" onclick="selectMotor(1)" id="tab-1">Motor 1</button>
+      <button class="motor-tab" onclick="selectMotor(2)" id="tab-2">Motor 2</button>
+      <button class="motor-tab" onclick="selectMotor(3)" id="tab-3">Motor 3</button>
+      <button class="motor-tab" onclick="selectMotor(4)" id="tab-4">Motor 4</button>
+      <button class="motor-tab" onclick="selectMotor(5)" id="tab-5">Motor 5</button>
+    </div>
 
-    <button class="refresh-btn" onclick="loadData()">Veriyi Yenile</button>
-    <p id="lastStatus"></p>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Zaman</th>
-          <th>Titreşim Seviyesi (field1)</th>
-          <th>Durum</th>
-        </tr>
-      </thead>
-      <tbody id="dataTableBody">
-        <!-- JS buraya satır ekleyecek -->
-      </tbody>
-    </table>
-
-    <div class="chart-container">
-      <h2>Zamana Göre Titreşim Grafiği</h2>
-      <p style="font-size:13px;color:#9ca3af;">
-        Aşağıdaki grafikte son ölçümlerin titreşim seviyeleri gösterilmektedir.
-        Sensör sallandığında veya titreşim arttığında grafik yukarı doğru spike yapar.
+    <div class="top-row">
+      <p class="section-sub" id="motorDescription">
+        Motor 1 için sensör bağlı. Bu panel, Motor 1'in titreşim seviyesini canlı olarak göstermektedir.
       </p>
+      <button class="refresh-btn" onclick="loadData()">
+        <span>Veriyi Yenile</span>
+      </button>
+    </div>
+
+    <!-- Özet kartlar -->
+    <div class="grid-cards">
+      <div class="card">
+        <div class="card-label">Son Titreşim Seviyesi</div>
+        <div class="card-value" id="cardLastVibration">-</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Ortalama (Son Ölçümler)</div>
+        <div class="card-value" id="cardAvgVibration">-</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Min / Max</div>
+        <div class="card-value" id="cardMinMaxVibration">-</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Genel Durum</div>
+        <div class="card-value">
+          <span class="badge-status" id="cardStatus">
+            <span class="dot dot-offline" id="statusDot"></span>
+            <span id="statusText">-</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ek alan özetleri (field2 / field3) -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Ek Parametreler</h2>
+        <span class="section-sub">Şu anda sensör Motor 1'e bağlıdır. Diğer motorlar pasif.</span>
+      </div>
+      <div class="extra-fields">
+        <div>
+          <div class="extra-label" id="extraLabel2">Field 2 (örn. Sıcaklık)</div>
+          <div class="extra-value" id="extraValue2">-</div>
+        </div>
+        <div>
+          <div class="extra-label" id="extraLabel3">Field 3 (örn. Motor Hızı)</div>
+          <div class="extra-value" id="extraValue3">-</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tablo -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Ham Ölçümler</h2>
+        <span class="section-sub">Aktif motor için son ölçüm kayıtları.</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Zaman</th>
+            <th>Titreşim (field1)</th>
+            <th>Field 2</th>
+            <th>Field 3</th>
+            <th>Durum</th>
+          </tr>
+        </thead>
+        <tbody id="dataTableBody">
+          <!-- JS dolduracak -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Grafik -->
+    <div class="section">
+      <div class="section-header">
+        <h2>Zamana Göre Titreşim Grafiği</h2>
+        <span class="section-sub">
+          Sadece Motor 1'de sensör aktif. Diğer motor sekmeleri için örnek tasarım gösterilir.
+        </span>
+      </div>
       <canvas id="vibrationChart"></canvas>
     </div>
   </div>
 
-  <!-- Chart.js CDN -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
-    // ======= BURALARI KENDİ KANALINA GÖRE AYARLA =======
-    const CHANNEL_ID = "3177497"; // <-- ThingSpeak Channel ID
-    const LIMIT = 40;                     // Son 40 ölçümü çizelim
-    const THRESHOLD = 50;                 // ESP32 kodundaki THRESHOLD ile aynı olsun
-    // ===================================================
+    // ========= KANAL AYARLARI =========
+    const CHANNEL_ID = "3177497";  // <-- kendi ThingSpeak Channel ID'in
+    const LIMIT      = 100;                 // Kaç kayıt çekilecek
+    const THRESHOLD  = 50;                 // ESP32 kodundakiyle aynı
+    const FIELD2_LABEL = "Sistem Sıcaklığı (field2)";
+    const FIELD3_LABEL = "Motor Hızı (field3)";
+    // ==================================
+
+    document.getElementById("extraLabel2").textContent = FIELD2_LABEL;
+    document.getElementById("extraLabel3").textContent = FIELD3_LABEL;
 
     let vibrationChart = null;
+    let currentMotor = 1; // 1 = gerçek sensörün bağlı olduğu motor
+
+    function selectMotor(motorIndex) {
+      currentMotor = motorIndex;
+
+      // Sekme görünümleri
+      for (let i = 1; i <= 5; i++) {
+        const tab = document.getElementById(`tab-${i}`);
+        if (i === motorIndex) tab.classList.add("active");
+        else tab.classList.remove("active");
+      }
+
+      const desc = document.getElementById("motorDescription");
+      if (motorIndex === 1) {
+        desc.textContent =
+          "Motor 1 için sensör bağlı. Bu panel, Motor 1'in titreşim seviyesini canlı olarak göstermektedir.";
+        loadData();
+      } else {
+        desc.textContent =
+          "Şu anda sensör Motor 1'e bağlıdır. Motor " +
+          motorIndex +
+          " için sensör bağlı olmadığı için gerçek veri gösterilmiyor (tasarım örneği).";
+        showOfflineData();
+      }
+    }
+
+    function showOfflineData() {
+      // Kartlar
+      document.getElementById("cardLastVibration").textContent = "-";
+      document.getElementById("cardAvgVibration").textContent = "-";
+      document.getElementById("cardMinMaxVibration").textContent = "-";
+      document.getElementById("statusText").textContent = "Sensör bağlı değil";
+      document.getElementById("statusDot").className = "dot dot-offline";
+      document.getElementById("lastUpdatedPill").textContent = "Son güncelleme: -";
+      document.getElementById("extraValue2").textContent = "-";
+      document.getElementById("extraValue3").textContent = "-";
+
+      // Tablo
+      const tbody = document.getElementById("dataTableBody");
+      tbody.innerHTML = "<tr><td colspan='5'>Bu motor için sensör bağlantısı yok.</td></tr>";
+
+      // Grafik
+      updateChart([], []);
+    }
 
     async function loadData() {
-      const tbody = document.getElementById("dataTableBody");
-      const lastStatus = document.getElementById("lastStatus");
-      tbody.innerHTML = "<tr><td colspan='3'>Yükleniyor...</td></tr>";
-      lastStatus.innerHTML = "";
+      if (currentMotor !== 1) {
+        // Sadece Motor 1 gerçek veriyi kullanıyor
+        showOfflineData();
+        return;
+      }
+
+      const tbody     = document.getElementById("dataTableBody");
+      const lastPill  = document.getElementById("lastUpdatedPill");
+      const statusDot = document.getElementById("statusDot");
+      const statusText = document.getElementById("statusText");
+      const cardLast  = document.getElementById("cardLastVibration");
+      const cardAvg   = document.getElementById("cardAvgVibration");
+      const cardMinMax = document.getElementById("cardMinMaxVibration");
+      const extra2    = document.getElementById("extraValue2");
+      const extra3    = document.getElementById("extraValue3");
+
+      tbody.innerHTML = "<tr><td colspan='5'>Veri yükleniyor...</td></tr>";
 
       try {
         const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?results=${LIMIT}`;
         const res = await fetch(url);
         const data = await res.json();
 
-        tbody.innerHTML = "";
-
         if (!data.feeds || data.feeds.length === 0) {
-          tbody.innerHTML = "<tr><td colspan='3'>Veri bulunamadı.</td></tr>";
+          tbody.innerHTML = "<tr><td colspan='5'>Veri bulunamadı.</td></tr>";
+          cardLast.textContent = "-";
+          cardAvg.textContent = "-";
+          cardMinMax.textContent = "-";
+          statusText.textContent = "Veri yok";
+          statusDot.className = "dot dot-offline";
+          lastPill.textContent = "Son güncelleme: -";
+          extra2.textContent = "-";
+          extra3.textContent = "-";
+          updateChart([], []);
           return;
         }
 
-        // Grafik için array'ler
+        tbody.innerHTML = "";
+
         const labels = [];
         const values = [];
 
+        let sum = 0;
+        let count = 0;
+        let minVal = Number.POSITIVE_INFINITY;
+        let maxVal = Number.NEGATIVE_INFINITY;
+
         data.feeds.forEach(feed => {
-          const value = parseFloat(feed.field1);
+          const v1 = parseFloat(feed.field1);
+          const v2 = feed.field2 !== null ? feed.field2 : "-";
+          const v3 = feed.field3 !== null ? feed.field3 : "-";
           const time = new Date(feed.created_at);
 
-          let statusText = "-";
+          let statusTextRow = "-";
           let statusClass = "";
 
-          if (!isNaN(value)) {
-            // Tablo için durum
-            if (value > THRESHOLD) {
-              statusText = "Bakım Zamanı";
+          if (!isNaN(v1)) {
+            if (v1 > THRESHOLD) {
+              statusTextRow = "Bakım Zamanı";
               statusClass = "status-bad";
             } else {
-              statusText = "Motor OK";
+              statusTextRow = "Motor OK";
               statusClass = "status-ok";
             }
 
-            // Grafik için verileri doldur
-            labels.push(time.toLocaleTimeString()); // sadece saat/dakika
-            values.push(value);
+            labels.push(time.toLocaleTimeString());
+            values.push(v1);
+
+            sum += v1;
+            count++;
+            if (v1 < minVal) minVal = v1;
+            if (v1 > maxVal) maxVal = v1;
           }
 
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${time.toLocaleString()}</td>
-            <td>${isNaN(value) ? "-" : value.toFixed(2)}</td>
-            <td><span class="badge ${statusClass}">${statusText}</span></td>
+            <td>${isNaN(v1) ? "-" : v1.toFixed(2)}</td>
+            <td>${v2}</td>
+            <td>${v3}</td>
+            <td><span class="badge ${statusClass}">${statusTextRow}</span></td>
           `;
           tbody.appendChild(tr);
         });
 
-        // Son veriye göre genel durum
-        const last = data.feeds[data.feeds.length - 1];
-        const lastValue = parseFloat(last.field1);
+        // Özet metrikler
+        const lastFeed = data.feeds[data.feeds.length - 1];
+        const lastValue = parseFloat(lastFeed.field1);
+        const lastTime = new Date(lastFeed.created_at);
+
+        lastPill.textContent = "Son güncelleme: " + lastTime.toLocaleString();
+
         if (!isNaN(lastValue)) {
-          if (lastValue > THRESHOLD) {
-            lastStatus.innerHTML = `Son durum: <span class="status-bad">Bakım Zamanı</span>`;
+          cardLast.textContent = lastValue.toFixed(2);
+
+          const avg = count > 0 ? (sum / count) : NaN;
+          cardAvg.textContent = isNaN(avg) ? "-" : avg.toFixed(1);
+          if (isFinite(minVal) && isFinite(maxVal)) {
+            cardMinMax.textContent = `${minVal.toFixed(0)} / ${maxVal.toFixed(0)}`;
           } else {
-            lastStatus.innerHTML = `Son durum: <span class="status-ok">Motor OK</span>`;
+            cardMinMax.textContent = "-";
           }
+
+          if (lastValue > THRESHOLD) {
+            statusText.textContent = "Bakım Zamanı";
+            statusDot.className = "dot dot-bad";
+          } else {
+            statusText.textContent = "Motor OK";
+            statusDot.className = "dot dot-good";
+          }
+        } else {
+          cardLast.textContent = "-";
+          cardAvg.textContent = "-";
+          cardMinMax.textContent = "-";
+          statusText.textContent = "Veri yok";
+          statusDot.className = "dot dot-offline";
         }
 
-        // Grafiği güncelle
+        // Ek alanlar
+        extra2.textContent = lastFeed.field2 ?? "-";
+        extra3.textContent = lastFeed.field3 ?? "-";
+
         updateChart(labels, values);
 
       } catch (err) {
         console.error(err);
-        tbody.innerHTML = "<tr><td colspan='3'>Veri çekilirken hata oluştu.</td></tr>";
-        lastStatus.innerText = "Sunucuya erişilemiyor.";
+        tbody.innerHTML = "<tr><td colspan='5'>Veri çekilirken hata oluştu.</td></tr>";
+        cardLast.textContent = "-";
+        cardAvg.textContent = "-";
+        cardMinMax.textContent = "-";
+        statusText.textContent = "Bağlantı hatası";
+        statusDot.className = "dot dot-offline";
+        lastPill.textContent = "Son güncelleme: hata";
       }
     }
 
     function updateChart(labels, values) {
-      const ctx = document.getElementById('vibrationChart').getContext('2d');
+      const ctx = document.getElementById("vibrationChart").getContext("2d");
 
-      // Grafik daha önce oluşturulduysa, sadece datasını güncelle
-      if (vibrationChart) {
+      if (!vibrationChart) {
+        vibrationChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Titreşim Seviyesi",
+              data: values,
+              fill: false,
+              tension: 0.25
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                labels: { color: "#e5e7eb" }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: "#9ca3af" },
+                grid: { color: "#1f2937" }
+              },
+              y: {
+                ticks: { color: "#9ca3af" },
+                grid: { color: "#1f2937" }
+              }
+            }
+          }
+        });
+      } else {
         vibrationChart.data.labels = labels;
         vibrationChart.data.datasets[0].data = values;
         vibrationChart.update();
-        return;
       }
-
-      // İlk defa grafik oluşturuluyor
-      vibrationChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Titreşim Seviyesi',
-            data: values,
-            fill: false,
-            tension: 0.25
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              labels: {
-                color: '#e5e7eb'
-              }
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: '#9ca3af' },
-              grid: { color: '#1f2937' }
-            },
-            y: {
-              ticks: { color: '#9ca3af' },
-              grid: { color: '#1f2937' }
-            }
-          }
-        }
-      });
     }
 
-    // Sayfa açılır açılmaz veriyi al ve grafiği çiz
-    loadData();
+    // Sayfa açılır açılmaz Motor 1 seçili gelsin
+    selectMotor(1);
   </script>
 </body>
 </html>
-
