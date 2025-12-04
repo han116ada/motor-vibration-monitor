@@ -189,7 +189,6 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
       font-size: 13px;
     }
 
@@ -206,6 +205,26 @@
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
+    }
+
+    /* Tabloyu kaydırmalı panel yapmak için */
+    .table-scroll {
+      max-height: 260px;
+      overflow-y: auto;
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .table-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .table-scroll::-webkit-scrollbar-track {
+      background: #020617;
+    }
+    .table-scroll::-webkit-scrollbar-thumb {
+      background: #4b5563;
+      border-radius: 999px;
     }
 
     .status-ok {
@@ -362,20 +381,23 @@
         <h2>Ham Ölçümler</h2>
         <span class="section-sub">Aktif motor için son ölçüm kayıtları.</span>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Zaman</th>
-            <th>Titreşim (field1)</th>
-            <th>Field 2</th>
-            <th>Field 3</th>
-            <th>Durum</th>
-          </tr>
-        </thead>
-        <tbody id="dataTableBody">
-          <!-- JS dolduracak -->
-        </tbody>
-      </table>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Zaman</th>
+              <th>Titreşim (field1)</th>
+              <th>Field 2</th>
+              <th>Field 3</th>
+              <th>Durum</th>
+            </tr>
+          </thead>
+          <tbody id="dataTableBody">
+            <!-- JS dolduracak -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Grafik -->
@@ -411,7 +433,6 @@
     function selectMotor(motorIndex) {
       currentMotor = motorIndex;
 
-      // Sekme görünümleri
       for (let i = 1; i <= 5; i++) {
         const tab = document.getElementById(`tab-${i}`);
         if (i === motorIndex) tab.classList.add("active");
@@ -433,7 +454,6 @@
     }
 
     function showOfflineData() {
-      // Kartlar
       document.getElementById("cardLastVibration").textContent = "-";
       document.getElementById("cardAvgVibration").textContent = "-";
       document.getElementById("cardMinMaxVibration").textContent = "-";
@@ -443,17 +463,14 @@
       document.getElementById("extraValue2").textContent = "-";
       document.getElementById("extraValue3").textContent = "-";
 
-      // Tablo
       const tbody = document.getElementById("dataTableBody");
       tbody.innerHTML = "<tr><td colspan='5'>Bu motor için sensör bağlantısı yok.</td></tr>";
 
-      // Grafik
       updateChart([], []);
     }
 
     async function loadData() {
       if (currentMotor !== 1) {
-        // Sadece Motor 1 gerçek veriyi kullanıyor
         showOfflineData();
         return;
       }
@@ -537,7 +554,6 @@
           tbody.appendChild(tr);
         });
 
-        // Özet metrikler
         const lastFeed = data.feeds[data.feeds.length - 1];
         const lastValue = parseFloat(lastFeed.field1);
         const lastTime = new Date(lastFeed.created_at);
@@ -570,7 +586,6 @@
           statusDot.className = "dot dot-offline";
         }
 
-        // Ek alanlar
         extra2.textContent = lastFeed.field2 ?? "-";
         extra3.textContent = lastFeed.field3 ?? "-";
 
