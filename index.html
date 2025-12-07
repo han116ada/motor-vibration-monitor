@@ -17,9 +17,7 @@
       --radius-xl: 18px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -37,30 +35,15 @@
       gap: 16px;
     }
 
-    .logo-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
+    .logo-title { display: flex; align-items: center; gap: 12px; }
     .logo-dot {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
+      width: 32px; height: 32px; border-radius: 50%;
       background: radial-gradient(circle at 30% 20%, #4ade80, #22c55e 40%, #16a34a 60%, #166534 100%);
       box-shadow: 0 0 20px rgba(34,197,94,0.6);
     }
 
-    h1 {
-      margin: 0;
-      font-size: 22px;
-      letter-spacing: 0.02em;
-    }
-
-    .subheader {
-      font-size: 13px;
-      color: var(--muted);
-    }
+    h1 { margin: 0; font-size: 22px; letter-spacing: 0.02em; }
+    .subheader { font-size: 13px; color: var(--muted); }
 
     .content {
       padding: 20px 40px 40px;
@@ -89,10 +72,7 @@
       align-items: center;
       gap: 8px;
     }
-
-    .refresh-btn:active {
-      transform: translateY(1px);
-    }
+    .refresh-btn:active { transform: translateY(1px); }
 
     .pill {
       border-radius: 999px;
@@ -108,7 +88,6 @@
       margin-bottom: 14px;
       flex-wrap: wrap;
     }
-
     .motor-tab {
       padding: 6px 14px;
       border-radius: 999px;
@@ -118,7 +97,6 @@
       font-size: 13px;
       cursor: pointer;
     }
-
     .motor-tab.active {
       background: var(--accent);
       color: #fff;
@@ -149,11 +127,7 @@
       letter-spacing: 0.06em;
       margin-bottom: 4px;
     }
-
-    .card-value {
-      font-size: 22px;
-      font-weight: 600;
-    }
+    .card-value { font-size: 22px; font-weight: 600; }
 
     .badge-status {
       display: inline-flex;
@@ -165,26 +139,10 @@
       border: 1px solid var(--border);
     }
 
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-
-    .dot-good {
-      background: var(--good);
-      box-shadow: 0 0 12px rgba(34,197,94,0.9);
-    }
-
-    .dot-bad {
-      background: var(--bad);
-      box-shadow: 0 0 12px rgba(239,68,68,0.9);
-    }
-
-    .dot-offline {
-      background: #6b7280;
-      box-shadow: 0 0 10px rgba(107,114,128,0.6);
-    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-good { background: var(--good); box-shadow: 0 0 12px rgba(34,197,94,0.9); }
+    .dot-bad { background: var(--bad); box-shadow: 0 0 12px rgba(239,68,68,0.9); }
+    .dot-offline { background: #6b7280; box-shadow: 0 0 10px rgba(107,114,128,0.6); }
 
     table {
       width: 100%;
@@ -207,7 +165,7 @@
       letter-spacing: 0.06em;
     }
 
-    /* Tabloyu kaydırmalı panel yapmak için */
+    /* Kaydırmalı ham ölçümler paneli */
     .table-scroll {
       max-height: 260px;
       overflow-y: auto;
@@ -215,26 +173,15 @@
       border-radius: 12px;
       border: 1px solid var(--border);
     }
-
-    .table-scroll::-webkit-scrollbar {
-      width: 6px;
-    }
-    .table-scroll::-webkit-scrollbar-track {
-      background: #020617;
-    }
+    .table-scroll::-webkit-scrollbar { width: 6px; }
+    .table-scroll::-webkit-scrollbar-track { background: #020617; }
     .table-scroll::-webkit-scrollbar-thumb {
       background: #4b5563;
       border-radius: 999px;
     }
 
-    .status-ok {
-      color: var(--good);
-      font-weight: 600;
-    }
-    .status-bad {
-      color: var(--bad);
-      font-weight: 600;
-    }
+    .status-ok { color: var(--good); font-weight: 600; }
+    .status-bad { color: var(--bad); font-weight: 600; }
 
     .badge {
       display: inline-block;
@@ -261,43 +208,13 @@
       margin-bottom: 8px;
     }
 
-    .section h2 {
-      margin: 0;
-      font-size: 17px;
-    }
+    .section h2 { margin: 0; font-size: 17px; }
+    .section-sub { font-size: 12px; color: var(--muted); }
 
-    .section-sub {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    canvas {
-      width: 100%;
-      max-height: 360px;
-    }
-
-    .extra-fields {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      margin-top: 6px;
-      font-size: 13px;
-    }
-
-    .extra-label {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .extra-value {
-      font-size: 16px;
-      font-weight: 500;
-    }
+    canvas { width: 100%; max-height: 360px; }
 
     @media (max-width: 720px) {
-      header, .content {
-        padding: 16px 16px 24px;
-      }
+      header, .content { padding: 16px 16px 24px; }
     }
   </style>
 </head>
@@ -357,25 +274,7 @@
       </div>
     </div>
 
-    <!-- Ek alan özetleri (field2 / field3) -->
-    <div class="section">
-      <div class="section-header">
-        <h2>Ek Parametreler</h2>
-        <span class="section-sub">Şu anda sensör Motor 1'e bağlıdır. Diğer motorlar pasif.</span>
-      </div>
-      <div class="extra-fields">
-        <div>
-          <div class="extra-label" id="extraLabel2">Field 2 (örn. Sıcaklık)</div>
-          <div class="extra-value" id="extraValue2">-</div>
-        </div>
-        <div>
-          <div class="extra-label" id="extraLabel3">Field 3 (örn. Motor Hızı)</div>
-          <div class="extra-value" id="extraValue3">-</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tablo -->
+    <!-- Ham Ölçümler (kaydırmalı) -->
     <div class="section">
       <div class="section-header">
         <h2>Ham Ölçümler</h2>
@@ -418,17 +317,12 @@
   <script>
     // ========= KANAL AYARLARI =========
     const CHANNEL_ID = "3177497";  // <-- kendi ThingSpeak Channel ID'in
-    const LIMIT      = 60;                 // Kaç kayıt çekilecek
-    const THRESHOLD  = 50;                 // ESP32 kodundakiyle aynı
-    const FIELD2_LABEL = "Sistem Sıcaklığı (field2)";
-    const FIELD3_LABEL = "Motor Hızı (field3)";
+    const LIMIT      = 60;
+    const THRESHOLD  = 50;                 // ESP32 ile aynı
     // ==================================
 
-    document.getElementById("extraLabel2").textContent = FIELD2_LABEL;
-    document.getElementById("extraLabel3").textContent = FIELD3_LABEL;
-
     let vibrationChart = null;
-    let currentMotor = 1; // 1 = gerçek sensörün bağlı olduğu motor
+    let currentMotor = 1;
 
     function selectMotor(motorIndex) {
       currentMotor = motorIndex;
@@ -460,8 +354,6 @@
       document.getElementById("statusText").textContent = "Sensör bağlı değil";
       document.getElementById("statusDot").className = "dot dot-offline";
       document.getElementById("lastUpdatedPill").textContent = "Son güncelleme: -";
-      document.getElementById("extraValue2").textContent = "-";
-      document.getElementById("extraValue3").textContent = "-";
 
       const tbody = document.getElementById("dataTableBody");
       tbody.innerHTML = "<tr><td colspan='5'>Bu motor için sensör bağlantısı yok.</td></tr>";
@@ -482,8 +374,6 @@
       const cardLast  = document.getElementById("cardLastVibration");
       const cardAvg   = document.getElementById("cardAvgVibration");
       const cardMinMax = document.getElementById("cardMinMaxVibration");
-      const extra2    = document.getElementById("extraValue2");
-      const extra3    = document.getElementById("extraValue3");
 
       tbody.innerHTML = "<tr><td colspan='5'>Veri yükleniyor...</td></tr>";
 
@@ -500,8 +390,6 @@
           statusText.textContent = "Veri yok";
           statusDot.className = "dot dot-offline";
           lastPill.textContent = "Son güncelleme: -";
-          extra2.textContent = "-";
-          extra3.textContent = "-";
           updateChart([], []);
           return;
         }
@@ -586,9 +474,6 @@
           statusDot.className = "dot dot-offline";
         }
 
-        extra2.textContent = lastFeed.field2 ?? "-";
-        extra3.textContent = lastFeed.field3 ?? "-";
-
         updateChart(labels, values);
 
       } catch (err) {
@@ -599,7 +484,7 @@
         cardMinMax.textContent = "-";
         statusText.textContent = "Bağlantı hatası";
         statusDot.className = "dot dot-offline";
-        lastPill.textContent = "Son güncelleme: hata";
+        document.getElementById("lastUpdatedPill").textContent = "Son güncelleme: hata";
       }
     }
 
@@ -621,19 +506,11 @@
           options: {
             responsive: true,
             plugins: {
-              legend: {
-                labels: { color: "#e5e7eb" }
-              }
+              legend: { labels: { color: "#e5e7eb" } }
             },
             scales: {
-              x: {
-                ticks: { color: "#9ca3af" },
-                grid: { color: "#1f2937" }
-              },
-              y: {
-                ticks: { color: "#9ca3af" },
-                grid: { color: "#1f2937" }
-              }
+              x: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } },
+              y: { ticks: { color: "#9ca3af" }, grid: { color: "#1f2937" } }
             }
           }
         });
