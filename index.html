@@ -418,8 +418,10 @@
   <script>
     // ========= KANAL AYARLARI =========
     const CHANNEL_ID = "3177497";  // <-- kendi ThingSpeak Channel ID'in
-    const LIMIT      = 100;                 // Kaç kayıt çekilecek
+    const LIMIT      = 60;                 // Kaç kayıt çekilecek
     const THRESHOLD  = 50;                 // ESP32 kodundakiyle aynı
+    const FIELD2_LABEL = "Sistem Sıcaklığı (field2)";
+    const FIELD3_LABEL = "Motor Hızı (field3)";
     // ==================================
 
     document.getElementById("extraLabel2").textContent = FIELD2_LABEL;
