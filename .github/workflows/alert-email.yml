@@ -1,0 +1,55 @@
+name: Vibration Alert Email
+
+on:
+  schedule:
+    - cron: "*/2 * * * *"   # 2 dakikada bir kontrol
+  workflow_dispatch:
+
+jobs:
+  check-and-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch latest ThingSpeak value
+        id: fetch
+        env:
+          CHANNEL_ID: ${{ secrets.THINGSPEAK_CHANNEL_ID }}
+          READ_API_KEY: ${{ secrets.THINGSPEAK_READ_API_KEY }}
+        run: |
+          set -e
+          URL="https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds/last.json?api_key=${READ_API_KEY}"
+          JSON=$(curl -s "$URL")
+          echo "$JSON"
+          VALUE=$(echo "$JSON" | python3 -c "import sys, json; print(float(json.load(sys.stdin).get('field1') or 0))")
+          echo "value=$VALUE" >> $GITHUB_OUTPUT
+
+      - name: Decide if alert needed
+        id: decide
+        env:
+          THRESHOLD: ${{ secrets.THRESHOLD }}
+        run: |
+          VALUE="${{ steps.fetch.outputs.value }}"
+          TH="${THRESHOLD:-50}"
+          echo "threshold=$TH" >> $GITHUB_OUTPUT
+          python3 -c "import sys; v=float(sys.argv[1]); th=float(sys.argv[2]); exit(0 if v>th else 1)" "$VALUE" "$TH" \
+            && echo "alert=true" >> $GITHUB_OUTPUT \
+            || echo "alert=false" >> $GITHUB_OUTPUT
+
+      - name: Send email (Gmail SMTP)
+        if: steps.decide.outputs.alert == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.GMAIL_USER }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: "⚠️ Bakım Zamanı Uyarısı (Motor 1)"
+          to: ${{ secrets.MAIL_TO }}
+          from: "Motor Alert <${{ secrets.GMAIL_USER }}>"
+          body: |
+            Bakım uyarısı tetiklendi!
+
+            Motor: Motor 1
+            Titreşim (field1): ${{ steps.fetch.outputs.value }}
+            Threshold: ${{ steps.decide.outputs.threshold }}
+
+            Kaynak: ThingSpeak last.json
