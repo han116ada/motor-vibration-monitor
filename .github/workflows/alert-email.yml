@@ -2,14 +2,15 @@ name: Vibration Alert Email
 
 on:
   schedule:
-    - cron: "*/2 * * * *"   # 2 dakikada bir kontrol
+    - cron: "*/30 * * * *"   # 30 dakikada bir kontrol (istersen */2 yap)
   workflow_dispatch:
 
 jobs:
   check-and-email:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Fetch latest ThingSpeak value
+      - name: Fetch latest ThingSpeak feed (value + time)
         id: fetch
         env:
           CHANNEL_ID: ${{ secrets.THINGSPEAK_CHANNEL_ID }}
@@ -19,20 +20,53 @@ jobs:
           URL="https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds/last.json?api_key=${READ_API_KEY}"
           JSON=$(curl -s "$URL")
           echo "$JSON"
-          VALUE=$(echo "$JSON" | python3 -c "import sys, json; print(float(json.load(sys.stdin).get('field1') or 0))")
-          echo "value=$VALUE" >> $GITHUB_OUTPUT
+          echo "json<<EOF" >> $GITHUB_OUTPUT
+          echo "$JSON" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Decide if alert needed
+      - name: Decide if alert needed (threshold + freshness)
         id: decide
         env:
           THRESHOLD: ${{ secrets.THRESHOLD }}
+          MAX_AGE_MINUTES: ${{ secrets.MAX_AGE_MINUTES }}
         run: |
-          VALUE="${{ steps.fetch.outputs.value }}"
+          JSON='${{ steps.fetch.outputs.json }}'
           TH="${THRESHOLD:-50}"
-          echo "threshold=$TH" >> $GITHUB_OUTPUT
-          python3 -c "import sys; v=float(sys.argv[1]); th=float(sys.argv[2]); exit(0 if v>th else 1)" "$VALUE" "$TH" \
-            && echo "alert=true" >> $GITHUB_OUTPUT \
-            || echo "alert=false" >> $GITHUB_OUTPUT
+          AGE="${MAX_AGE_MINUTES:-10}"
+
+          python3 - <<PY
+          import json, datetime, os
+          data = json.loads("""$JSON""")
+
+          v = float(data.get("field1") or 0)
+          created = data.get("created_at")
+
+          th = float("$TH")
+          max_age = int("$AGE")
+
+          # ThingSpeak created_at UTC ISO format (Z)
+          t = datetime.datetime.fromisoformat(created.replace("Z","+00:00"))
+          now = datetime.datetime.now(datetime.timezone.utc)
+          age_min = (now - t).total_seconds() / 60
+
+          # ALERT şartı: değer eşik üstü + veri taze
+          alert = (v > th) and (age_min <= max_age)
+
+          print("value=", v)
+          print("created_at=", created)
+          print("age_min=", round(age_min, 2))
+          print("threshold=", th)
+          print("max_age_min=", max_age)
+          print("alert=", alert)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"value={v}\n")
+              f.write(f"created_at={created}\n")
+              f.write(f"age_min={age_min}\n")
+              f.write(f"threshold={th}\n")
+              f.write(f"max_age_min={max_age}\n")
+              f.write(f"alert={'true' if alert else 'false'}\n")
+          PY
 
       - name: Send email (Gmail SMTP)
         if: steps.decide.outputs.alert == 'true'
@@ -49,7 +83,11 @@ jobs:
             Bakım uyarısı tetiklendi!
 
             Motor: Motor 1
-            Titreşim (field1): ${{ steps.fetch.outputs.value }}
+            Titreşim (field1): ${{ steps.decide.outputs.value }}
             Threshold: ${{ steps.decide.outputs.threshold }}
 
-            Kaynak: ThingSpeak last.json
+            Veri zamanı (UTC): ${{ steps.decide.outputs.created_at }}
+            Veri yaşı (dakika): ${{ steps.decide.outputs.age_min }}
+            Maks izin verilen yaş (dakika): ${{ steps.decide.outputs.max_age_min }}
+
+            Not: Veri taze değilse mail gönderilmez (ESP32 kapalıyken spam olmaz).
